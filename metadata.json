@@ -1,0 +1,5 @@
+{
+  "name": "Socratic Tutor 2.0",
+  "description": "A web-based chat application that lets a student have a conversation with an AI tutor about any provided article, using the Socratic method.",
+  "requestFramePermissions": []
+}
