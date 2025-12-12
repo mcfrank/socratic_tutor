@@ -1,9 +1,9 @@
 import React, { createContext, useState, useContext, useEffect, ReactNode, useCallback } from 'react';
-import { User } from '../types';
+import { User, Article } from '../types';
 
 interface AuthContextType {
   user: User | null;
-  login: (username: string, personaId: string) => void;
+  login: (username: string, personaId: string, article: Article) => void;
   logout: () => void;
 }
 
@@ -24,10 +24,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   }, []);
 
-  const login = useCallback((username: string, personaId: string) => {
+  const login = useCallback((username: string, personaId: string, article: Article) => {
     // In a real app, this would involve a SAML redirect and callback.
     // Here, we'll just create a user object and store it.
-    const newUser: User = { id: `user_${username.toLowerCase()}`, name: username, personaId };
+    const newUser: User = { 
+      id: `user_${username.toLowerCase()}`, 
+      name: username, 
+      personaId,
+      article
+    };
     localStorage.setItem('socratic_user', JSON.stringify(newUser));
     setUser(newUser);
   }, []);

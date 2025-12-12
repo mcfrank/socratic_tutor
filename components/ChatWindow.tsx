@@ -8,9 +8,10 @@ import { PERSONAS } from '../personas';
 interface ChatWindowProps {
   user: User;
   articleContent: string;
+  onConversationUpdate: (history: Message[]) => void;
 }
 
-const ChatWindow: React.FC<ChatWindowProps> = ({ user, articleContent }) => {
+const ChatWindow: React.FC<ChatWindowProps> = ({ user, articleContent, onConversationUpdate }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -30,10 +31,12 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ user, articleContent }) => {
   const saveHistory = useCallback((updatedMessages: Message[]) => {
       try {
         localStorage.setItem(`chatHistory_${user.id}`, JSON.stringify(updatedMessages));
+        // Trigger summary update in parent
+        onConversationUpdate(updatedMessages);
       } catch (error) {
         console.error("Failed to save chat history", error);
       }
-  }, [user.id]);
+  }, [user.id, onConversationUpdate]);
 
   useEffect(() => {
     const initializeChat = async () => {
@@ -69,7 +72,11 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ user, articleContent }) => {
 
         } else {
           chatSessionRef.current = createChatSession(storedHistory, systemInstruction);
-          setMessages(storedHistory.filter(msg => msg.text.trim() !== '' && msg.text.trim() !== "Hello, please begin our discussion."));
+          const visibleMessages = storedHistory.filter(msg => msg.text.trim() !== '' && msg.text.trim() !== "Hello, please begin our discussion.");
+          setMessages(visibleMessages);
+          
+          // Trigger an initial summary update based on loaded history
+          onConversationUpdate(storedHistory);
         }
       } catch (chatError) {
         console.error("Failed to initialize chat:", chatError);
@@ -82,7 +89,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ user, articleContent }) => {
     if (articleContent) {
         initializeChat();
     }
-  }, [user.id, user.personaId, saveHistory, activePersona, articleContent]);
+  }, [user.id, user.personaId, saveHistory, activePersona, articleContent, onConversationUpdate]);
 
 
   const handleSend = async (e: React.FormEvent) => {
@@ -130,6 +137,16 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ user, articleContent }) => {
     }
   };
 
+  const handleCopy = (e: React.ClipboardEvent) => {
+    e.preventDefault();
+    alert("Copying text is disabled to encourage deep processing and retention.");
+  };
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    e.preventDefault();
+    alert("Pasting text is disabled. Please type your responses manually to facilitate learning.");
+  };
+
   return (
     <div className="flex flex-col flex-1 h-full p-4 overflow-hidden">
       {isLoading && messages.length === 0 ? (
@@ -145,7 +162,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ user, articleContent }) => {
         </div>
       ) : (
         <>
-          <div className="flex-1 pr-4 overflow-y-auto">
+          <div className="flex-1 pr-4 overflow-y-auto" onCopy={handleCopy}>
             <div className="space-y-4">
               {error && (
                 <div className="p-3 text-sm text-red-800 bg-red-100 rounded-lg dark:bg-red-900/50 dark:text-red-300">
@@ -164,6 +181,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ user, articleContent }) => {
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
+                onPaste={handlePaste}
                 placeholder={isLoading ? `${activePersona.name} is thinking...` : "What is on your mind?"}
                 className="w-full p-4 pr-16 text-gray-800 bg-white border border-gray-300 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
                 disabled={isLoading}
