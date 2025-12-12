@@ -137,6 +137,13 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ user, articleContent, onConvers
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend(e);
+    }
+  };
+
   const handleCopy = (e: React.ClipboardEvent) => {
     e.preventDefault();
     alert("Copying text is disabled to encourage deep processing and retention.");
@@ -177,19 +184,20 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ user, articleContent, onConvers
           </div>
           <div className="w-full pt-4">
             <form onSubmit={handleSend} className="relative">
-              <input
-                type="text"
+              <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
                 onPaste={handlePaste}
-                placeholder={isLoading ? `${activePersona.name} is thinking...` : "What is on your mind?"}
-                className="w-full p-4 pr-16 text-gray-800 bg-white border border-gray-300 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
+                placeholder={isLoading ? `${activePersona.name} is thinking...` : "Your response"}
+                rows={3}
+                className="w-full p-4 pr-16 text-gray-800 bg-white border border-gray-300 shadow-sm rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
                 disabled={isLoading}
               />
               <button
                 type="submit"
                 disabled={isLoading || !input.trim()}
-                className="absolute top-1/2 right-3 transform -translate-y-1/2 p-2 text-white bg-indigo-600 rounded-full hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-indigo-300 disabled:cursor-not-allowed dark:disabled:bg-indigo-800"
+                className="absolute bottom-3 right-3 p-2 text-white bg-indigo-600 rounded-full hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-indigo-300 disabled:cursor-not-allowed dark:disabled:bg-indigo-800"
                 aria-label="Send message"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" transform='rotate(90)'>

@@ -95,7 +95,10 @@ export const generateConversationSummary = async (history: Message[]): Promise<s
 
   const response = await aiInstance.models.generateContent({
     model,
-    contents: `Summarize the following Socratic dialogue into 3-5 concise bullet points that capture the main topics discussed and insights gained so far.
+    contents: `Analyze the following Socratic dialogue and provide 3-5 concise bullet points evaluating the student's responses. Focus on:
+1. Their demonstrated understanding of the reading material.
+2. The logic and depth of their arguments.
+3. Any misconceptions or gaps in knowledge revealed.
 
 DIALOGUE:
 ${conversationText}
