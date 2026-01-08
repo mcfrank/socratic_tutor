@@ -99,6 +99,7 @@ export const generateConversationSummary = async (history: Message[]): Promise<s
 1. Their demonstrated understanding of the reading material.
 2. The logic and depth of their arguments.
 3. Any misconceptions or gaps in knowledge revealed.
+4. If the tutor explicitly stated that there are "gaps in your understanding" or that the limit was reached, ensure this insufficient understanding is clearly reflected in the summary.
 
 DIALOGUE:
 ${conversationText}
